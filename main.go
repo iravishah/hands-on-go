@@ -72,6 +72,23 @@ func removeArticle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func updateArticle(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["id"]
+
+	var article1 Article
+
+	body, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(body, &article1)
+
+	for index, article := range Articles {
+		if article.Id == key {
+			Articles[index] = article1
+		}
+	}
+	json.NewEncoder(w).Encode(Articles)
+}
+
 func handlerRequests() {
 	apiRouter := mux.NewRouter().StrictSlash(true)
 	apiRouter.HandleFunc("/", homepage)
@@ -79,6 +96,7 @@ func handlerRequests() {
 	apiRouter.HandleFunc("/articles/{id}", getArticle).Methods("GET")
 	apiRouter.HandleFunc("/article", createArticle).Methods("POST")
 	apiRouter.HandleFunc("/article/{id}", removeArticle).Methods("DELETE")
+	apiRouter.HandleFunc("/article/{id}", updateArticle).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe(":9999", apiRouter))
 }
