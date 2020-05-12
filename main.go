@@ -17,6 +17,10 @@ type Article struct {
 	Content string
 }
 
+type Addition struct {
+	Sum int
+}
+
 var Articles []Article
 
 func main() {
@@ -89,6 +93,15 @@ func updateArticle(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(Articles)
 }
 
+func addition(w http.ResponseWriter, r *http.Request) {
+	add := Addition{Sum: 2 + 2}
+	json.NewEncoder(w).Encode(add)
+}
+
+func insert(w http.ResponseWriter, r *http.Request) {
+	connect.connectMongo()
+}
+
 func handlerRequests() {
 	apiRouter := mux.NewRouter().StrictSlash(true)
 	apiRouter.HandleFunc("/", homepage)
@@ -97,6 +110,8 @@ func handlerRequests() {
 	apiRouter.HandleFunc("/article", createArticle).Methods("POST")
 	apiRouter.HandleFunc("/article/{id}", removeArticle).Methods("DELETE")
 	apiRouter.HandleFunc("/article/{id}", updateArticle).Methods("PUT")
+	apiRouter.HandleFunc("/add", addition).Methods("GET")
+	apiRouter.HandleFunc("/insert", insert).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":9999", apiRouter))
 }
